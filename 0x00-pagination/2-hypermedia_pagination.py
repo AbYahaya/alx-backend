@@ -5,7 +5,7 @@ arguments page and page_size.
 """
 import csv
 import math
-from typing import List
+from typing import List, Dict, Any
 
 
 def index_range(page: int, page_size: int) -> tuple:
@@ -64,3 +64,18 @@ class Server:
             return []
 
         return dataset[start_indx:end_indx]
+
+    def get_hyper(self, page: int = 1, page_size: int = 10) -> Dict[str, Any]:
+        """Returns a dictionary of pagination details."""
+        data = self.get_page(page, page_size)
+        total_records = len(self.dataset())
+        total_pages = math.ceil(total_records / page_size)
+
+        return {
+            'page_size': len(data),  # Length of the data returned
+            'page': page,            # Current page number
+            'data': data,            # The data returned from get_page
+            'next_page': page + 1 if page < total_pages else None,
+            'prev_page': page - 1 if page > 1 else None,
+            'total_pages': total_pages  # Total number of pages
+        }
