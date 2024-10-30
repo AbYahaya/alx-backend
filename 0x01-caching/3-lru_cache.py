@@ -7,32 +7,35 @@ from base_caching import BaseCaching
 
 
 class LRUCache(BaseCaching):
+    """ LRUCache defines a Least Recently Used caching system """
+
     def __init__(self):
-        """Initialize the class by calling the parent constructor"""
+        """ Initialize the class by calling the parent constructor """
         super().__init__()
         self.cache_data = OrderedDict()
 
     def put(self, key, item):
-        """Assign the item value to the dictionary self.cache_data for the key"""
+        """ Add an item to the cache using LRU algorithm """
         if key is None or item is None:
             return
 
+        # If key exists, remove it so we can insert it again at the end
         if key in self.cache_data:
-            # Move the key to the end to show it was recently used
-            self.cache_data.move_to_end(key)
-        self.cache_data[key] = item
+            self.cache_data.pop(key)
 
+        self.cache_data[key] = item  # Add key-item pair
+
+        # If cache exceeds MAX_ITEMS, discard the least recently used item
         if len(self.cache_data) > BaseCaching.MAX_ITEMS:
-            # Least recently used is the first item in OrderedDict
-            first_key = next(iter(self.cache_data))
+            first_key, _ = self.cache_data.popitem(last=False)
             print(f"DISCARD: {first_key}")
-            self.cache_data.pop(first_key)
 
     def get(self, key):
-        """Return the value linked to key in self.cache_data"""
+        """ Get an item from the cache, marking it as recently used """
         if key is None or key not in self.cache_data:
             return None
-        
-        # Move the key to the end to show it was recently used
-self.cache_data.move_to_end(key)
-        return self.cache_data[key]
+
+        # Move the key to the end to mark it as recently used
+        value = self.cache_data.pop(key)
+        self.cache_data[key] = value
+        return value
